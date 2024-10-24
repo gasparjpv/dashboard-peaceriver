@@ -132,12 +132,14 @@ else:
         else:
             analito_predefinido = df_filtrado["analyte_primary_name"].unique()[0]
 
+
+        # Exibindo o selectbox abaixo
         analyte_selecionado = st.selectbox(
             "**Select the analyte type to view the histogram**",
             sorted(df_filtrado["analyte_primary_name"].unique()),
             index=list(sorted(df_filtrado["analyte_primary_name"].unique())).index(
                 analito_predefinido
-            ),
+            )
         )
 
         df_hist = df_filtrado[
@@ -146,7 +148,7 @@ else:
 
         if not df_hist.empty:
             st.write(
-                f"Histogram of 'final_result_value' for the analyte {analyte_selecionado}"
+                f"**Histogram of 'final_result_value' for the analyte {analyte_selecionado}**"
             )
 
             hist_values, bin_edges = np.histogram(
@@ -163,7 +165,7 @@ else:
             st.write("No data available for the selected analyte.")
 
         # === Resumo Estatístico por Analito (vinculado aos filtros) ===
-        st.write("### Statistical Summary by Analyte (based on applied filters)")
+        st.write("#### Statistical Summary by Analyte (on applied filters)")
 
         # Gerar a análise estatística para cada analito e sua respectiva unidade de medida (dep_result_unit)
         resumo_estatistico = df_filtrado.groupby(
