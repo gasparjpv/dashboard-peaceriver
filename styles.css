@@ -1,0 +1,17 @@
+table {
+    width: 100%;
+    table-layout: auto;
+}
+th, td {
+    padding: 8px 12px;
+    text-align: left;
+    border: 1px solid #ddd;
+}
+th {
+    background-color: #f4f4f4;
+}
+@media (max-width: 768px) {
+    table {
+        font-size: 12px;
+    }
+}

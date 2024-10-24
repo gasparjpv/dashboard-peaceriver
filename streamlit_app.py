@@ -1,4 +1,5 @@
 import sqlite3
+
 import folium
 import numpy as np
 import pandas as pd
@@ -169,10 +170,25 @@ else:
             ["analyte_primary_name", "dep_result_unit"]
         )["final_result_value"].describe()
 
-        # Exibir a tabela com alinhamento à esquerda
+        # Função para carregar o arquivo CSS
+        def load_css(file_name):
+            with open(file_name) as f:
+                st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+        # Carregar o arquivo styles.css
+        load_css("styles.css")
+
+        # O restante do seu código...
+        resumo_estatistico = df_filtrado.groupby(
+            ["analyte_primary_name", "dep_result_unit"]
+        )["final_result_value"].describe()
+
+        # Exibir a tabela com alinhamento à esquerda e responsividade
         styled_table = resumo_estatistico.style.format("{:.2f}").set_properties(
             **{"text-align": "left"}
         )
+
+        # Renderizar a tabela
         st.write(styled_table.to_html(), unsafe_allow_html=True)
 
         # === Mapa ===
