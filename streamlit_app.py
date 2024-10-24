@@ -63,7 +63,7 @@ ano_predefinido = (
 )
 
 ano_selecionado = st.sidebar.selectbox(
-    "Selecione o ano para visualização",
+    "Select the year for visualization",
     sorted(df["year"].dropna().unique(), reverse=True),
     index=list(sorted(df["year"].dropna().unique(), reverse=True)).index(
         ano_predefinido
