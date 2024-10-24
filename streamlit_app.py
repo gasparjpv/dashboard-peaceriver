@@ -1,5 +1,4 @@
 import sqlite3
-
 import folium
 import numpy as np
 import pandas as pd
