@@ -133,7 +133,7 @@ else:
             analito_predefinido = df_filtrado["analyte_primary_name"].unique()[0]
 
         analyte_selecionado = st.selectbox(
-            "Select the analyte type to view the histogram",
+            "**Select the analyte type to view the histogram**",
             sorted(df_filtrado["analyte_primary_name"].unique()),
             index=list(sorted(df_filtrado["analyte_primary_name"].unique())).index(
                 analito_predefinido
