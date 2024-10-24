@@ -3,4 +3,3 @@ streamlit-folium
 pandas
 folium
 numpy
-sqlite3
