@@ -218,7 +218,7 @@ else:
                         icon=folium.Icon(color="blue"),
                     ).add_to(mapa)
 
-            st_folium(mapa, width=1400, height=800)
+            st_folium(mapa, width=1500, height=800)
         else:
             st.write(
                 "Nenhum dado disponível para o ano, bacias e regiões selecionados."
