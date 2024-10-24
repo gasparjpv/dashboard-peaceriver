@@ -10,7 +10,7 @@ from streamlit_folium import st_folium
 st.set_page_config(layout="wide")
 
 # Título do Dashboard
-st.title("Dashboard Pace River - Florida")
+st.title("Dashboard Peace River - Florida")
 
 
 # Função para carregar dados do banco de dados SQLite
@@ -72,14 +72,14 @@ ano_selecionado = st.sidebar.selectbox(
 
 # Filtro de Bacias Hidrográficas
 bacias_selecionadas = st.sidebar.multiselect(
-    "Selecione as Bacias Hidrográficas",
+    "Select the Watersheds",
     sorted(df["basin_name"].unique()),
     default=sorted(df["basin_name"].unique()),
 )
 
 # Filtro de Regiões (county_name)
 regioes_selecionadas = st.sidebar.multiselect(
-    "Selecione as Regiões",
+    "Select the Region",
     sorted(df["county_name"].unique()),
     default=sorted(df["county_name"].unique()),
 )
@@ -87,7 +87,7 @@ regioes_selecionadas = st.sidebar.multiselect(
 # Verificar se alguma bacia ou região foi selecionada
 if len(bacias_selecionadas) == 0 or len(regioes_selecionadas) == 0:
     st.warning(
-        "Nenhuma bacia ou região foi selecionada. Por favor, selecione pelo menos uma para visualizar os dados."
+        "No watershed or region has been selected. Please select at least one to view the data."
     )
 else:
     # Filtrar os dados com base no ano, nas bacias e nas regiões selecionadas
@@ -100,7 +100,7 @@ else:
     # Verificar se existem dados após o filtro
     if df_filtrado.empty:
         st.warning(
-            f"Não há dados disponíveis para o ano {ano_selecionado}, nas bacias e regiões selecionadas."
+            f"No data available for the year {ano_selecionado}, in the selected watersheds and regions."
         )
     else:
         # === KPIs ===
@@ -117,14 +117,14 @@ else:
 
         col1, col2, col3 = st.columns(3)
         with col1:
-            st.metric("Total de Analitos", numero_total_analitos)
-            st.metric("Total de Regiões", numero_total_county_name)
+            st.metric("Total Analytes", numero_total_analitos)
+            st.metric("Total Regions", numero_total_county_name)
         with col2:
-            st.metric("Total de Locais", numero_total_monitoring_location_name)
-            st.metric("Total de Organizações", numero_total_organization_name)
+            st.metric("Total Locations", numero_total_monitoring_location_name)
+            st.metric("Total Organizations", numero_total_organization_name)
         with col3:
-            st.metric("Total de Bacias Hidrográficas", numero_total_basin_name)
-            st.metric("Total de Resultados", numero_total_result_key)
+            st.metric("Total Watersheds", numero_total_basin_name)
+            st.metric("Total Results", numero_total_result_key)
 
         # === Filtro para analitos no histograma ===
         if "Chlorophyll a- corrected" in df_filtrado["analyte_primary_name"].unique():
@@ -133,7 +133,7 @@ else:
             analito_predefinido = df_filtrado["analyte_primary_name"].unique()[0]
 
         analyte_selecionado = st.selectbox(
-            "Selecione o tipo de analito para visualizar o histograma",
+            "Select the analyte type to view the histogram",
             sorted(df_filtrado["analyte_primary_name"].unique()),
             index=list(sorted(df_filtrado["analyte_primary_name"].unique())).index(
                 analito_predefinido
@@ -146,7 +146,7 @@ else:
 
         if not df_hist.empty:
             st.write(
-                f"Histograma de 'final_result_value' para o analito: {analyte_selecionado}"
+                f"Histogram of 'final_result_value' for the analyte {analyte_selecionado}"
             )
 
             hist_values, bin_edges = np.histogram(
@@ -160,10 +160,10 @@ else:
 
             st.bar_chart(hist_df.set_index("bin_edges"))
         else:
-            st.write("Nenhum dado disponível para o analito selecionado.")
+            st.write("No data available for the selected analyte.")
 
         # === Resumo Estatístico por Analito (vinculado aos filtros) ===
-        st.write("### Resumo Estatístico por Analito (com base nos filtros aplicados)")
+        st.write("### Statistical Summary by Analyte (based on applied filters)")
 
         # Gerar a análise estatística para cada analito e sua respectiva unidade de medida (dep_result_unit)
         resumo_estatistico = df_filtrado.groupby(
@@ -221,5 +221,5 @@ else:
             st_folium(mapa, width=1500, height=800)
         else:
             st.write(
-                "Nenhum dado disponível para o ano, bacias e regiões selecionados."
+                "No data available for the selected year, watersheds, and regions."
             )
