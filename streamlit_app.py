@@ -86,7 +86,7 @@ regioes_selecionadas = st.sidebar.multiselect(
 # Selectbox para visualizar a geometria HUC8 e para aplicar o filtro HUC8
 visualizar_huc8 = st.sidebar.checkbox("View HUC8 Geometry", value=False)
 
-aplicar_filtro_huc8 = st.sidebar.checkbox("Apply HUC8 Filter to Points", value=False)
+aplicar_filtro_huc8 = st.sidebar.checkbox("Apply HUC8 to Points", value=False)
 
 
 # Verificar se alguma bacia ou região foi selecionada
