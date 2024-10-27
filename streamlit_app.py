@@ -31,7 +31,6 @@ def carregar_dados_sqlite():
 
 # Carregar os dados do banco de dados SQLite
 df = carregar_dados_sqlite()
-
 # Definir colunas que devem ser convertidas para float e string
 colunas_float = ["x", "y", "final_result_value"]
 colunas_string = [
@@ -104,7 +103,7 @@ else:
     ]
 
     # Se a opção de aplicar o filtro por HUC8 estiver ativa, filtrar os pontos que estão dentro da geometria HUC8
-    if aplicar_filtro_huc8 == True:
+    if aplicar_filtro_huc8 is True:
         df_filtrado = gpd.sjoin(df_filtrado, gdf_huc8, how="inner", predicate="within")
 
     if df_filtrado.empty:
@@ -185,7 +184,7 @@ else:
         # Criar o mapa usando as coordenadas do centro e zoom armazenadas
         mapa = folium.Map(location=st.session_state['centro_mapa'], zoom_start=st.session_state['zoom'])
         # Adicionar as geometrias HUC8 ao mapa usando GeoJson se selecionado para visualização
-        if visualizar_huc8 == True and not gdf_huc8.empty:
+        if visualizar_huc8 is True and not gdf_huc8.empty:
             folium.GeoJson(
                 gdf_huc8[['geometry', 'huc8']],
                 name="HUC8 Regions",
