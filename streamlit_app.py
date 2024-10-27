@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
-from shapely.geometry import Point
 
 # Definir layout da página como "wide" para ser responsivo
 st.set_page_config(layout="wide")
@@ -185,7 +184,6 @@ else:
 
         # Criar o mapa usando as coordenadas do centro e zoom armazenadas
         mapa = folium.Map(location=st.session_state['centro_mapa'], zoom_start=st.session_state['zoom'])
-        
         # Adicionar as geometrias HUC8 ao mapa usando GeoJson se selecionado para visualização
         if visualizar_huc8 == True and not gdf_huc8.empty:
             folium.GeoJson(
@@ -209,4 +207,3 @@ else:
 
         # Exibir o mapa no Streamlit
         st_folium(mapa, width=1500, height=800)
-
