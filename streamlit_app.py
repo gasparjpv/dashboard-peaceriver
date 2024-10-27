@@ -11,6 +11,13 @@ st.set_page_config(layout="wide")
 
 # Título do Dashboard
 st.title("Dashboard Peace River - Florida")
+# Função para carregar o arquivo CSS
+def load_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# Carregar o arquivo styles.css
+load_css("styles.css")
 
 # Função para carregar o arquivo GeoPackage de HUC8
 @st.cache_data
@@ -121,7 +128,7 @@ else:
         numero_total_basin_name = len(df_filtrado["basin_name"].unique())
         numero_total_result_key = len(df_filtrado["result_key"].unique())
 
-        st.write("### Indicadores")
+        st.write("### KPIs")
 
         col1, col2, col3 = st.columns(3)
         with col1:
@@ -133,6 +140,22 @@ else:
         with col3:
             st.metric("Total Watersheds", numero_total_basin_name)
             st.metric("Total Results", numero_total_result_key)
+        
+        # === Resumo Estatístico por Analito (vinculado aos filtros) ===
+        st.write("### Statistical Summary by Analyte")
+
+        # Gerar a análise estatística para cada analito e sua respectiva unidade de medida (dep_result_unit)
+        resumo_estatistico = df_filtrado.groupby(
+            ["analyte_primary_name", "dep_result_unit"]
+        )["final_result_value"].describe()
+
+        # Exibir a tabela com alinhamento à esquerda e responsividade
+        styled_table = resumo_estatistico.style.format("{:.2f}").set_properties(
+            **{"text-align": "left"}
+        )
+  
+        # Renderizar a tabela no Streamlit
+        st.write(styled_table.to_html(), unsafe_allow_html=True)
 
         # === Filtro para analitos no histograma ===
         if "Chlorophyll a- corrected" in df_filtrado["analyte_primary_name"].unique():
