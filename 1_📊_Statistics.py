@@ -5,12 +5,57 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 from streamlit_folium import st_folium
+import scipy.stats as stats
+from PIL import Image
+import base64
+import io
 
 # Definir layout da página como "wide" para ser responsivo
 st.set_page_config(layout="wide")
 
-# Título do Dashboard
-st.title("Dashboard Peace River - Florida")
+# Carregar o CSS imagem unicamp
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+# Carregar a imagem
+logo = Image.open("imagens/unicamp.jpg")
+
+# Converter a imagem para Base64
+buffered = io.BytesIO()
+logo.save(buffered, format="PNG")
+logo_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+# Renderizar a imagem com a classe CSS personalizada
+st.markdown(
+    f'<img src="data:image/png;base64,{logo_base64}" class="header-logo">',
+    unsafe_allow_html=True
+)
+
+# Carregar o CSS
+with open("styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+
+# Carregar a imagem para o topo da página
+top_image = Image.open("imagens/ft.jpg")  # Substitua pelo caminho correto
+
+# Converter a imagem para Base64
+buffered = io.BytesIO()
+top_image.save(buffered, format="PNG")
+top_image_base64 = base64.b64encode(buffered.getvalue()).decode()
+
+# Renderizar a imagem no topo da página com a nova classe CSS
+st.markdown(
+    f'<img src="data:image/png;base64,{top_image_base64}" class="top-logo">',
+    unsafe_allow_html=True
+)
+
+# Título do Dashboard, alinhado à direita
+st.markdown("<h1 class='title-right'>Peace River - Florida</h1>", unsafe_allow_html=True)
+
+
+
 # Função para carregar o arquivo CSS
 def load_css(file_name):
     with open(file_name) as f:
@@ -26,6 +71,7 @@ def carregar_geometria_huc8():
 
 # Carregar a geometria HUC8
 gdf_huc8 = carregar_geometria_huc8()
+st.session_state["gdf_huc8"] = gdf_huc8
 
 # Função para carregar dados do banco de dados SQLite
 @st.cache_data
@@ -38,6 +84,7 @@ def carregar_dados_sqlite():
 
 # Carregar os dados do banco de dados SQLite
 df = carregar_dados_sqlite()
+
 # Definir colunas que devem ser convertidas para float e string
 colunas_float = ["x", "y", "final_result_value"]
 colunas_string = [
@@ -56,6 +103,9 @@ for coluna in colunas_float:
 for coluna in colunas_string:
     df[coluna] = df[coluna].astype(str)
 
+# Passar dados para página 2
+st.session_state["df"] = df
+
 # Converter activity_start_date para datetime e extrair o ano
 df["activity_start_date"] = pd.to_datetime(df["activity_start_date"], errors="coerce")
 df["year"] = df["activity_start_date"].dt.year.astype("Int64")
@@ -65,58 +115,80 @@ gdf_points = gpd.GeoDataFrame(
     df, geometry=gpd.points_from_xy(df["x"], df["y"]), crs="EPSG:4326"
 )
 
-# === Filtros ===
-ano_predefinido = (
-    2024
-    if 2024 in df["year"].unique()
-    else sorted(df["year"].dropna().unique(), reverse=True)[0]
-)
+st.session_state["gdf_points"] = gdf_points
 
-ano_selecionado = st.sidebar.selectbox(
-    "Select the year for visualization",
+# === Filtros ===
+
+# Inicializar os filtros no `session_state` se não existirem
+if "anos_selecionados" not in st.session_state:
+    st.session_state.anos_selecionados = [2024]  # Ano padrão
+
+if "bacias_selecionadas" not in st.session_state:
+    st.session_state.bacias_selecionadas = sorted(df["basin_name"].unique())
+
+if "regioes_selecionadas" not in st.session_state:
+    st.session_state.regioes_selecionadas = sorted(df["county_name"].unique())
+
+if "visualizar_huc8" not in st.session_state:
+    st.session_state.visualizar_huc8 = False
+
+if "aplicar_filtro_huc8" not in st.session_state:
+    st.session_state.aplicar_filtro_huc8 = False
+
+# Multiselect para anos, bacias e regiões, com armazenamento de filtro no session_state
+anos_selecionados = st.sidebar.multiselect(
+    "Select the years for visualization",
     sorted(df["year"].dropna().unique(), reverse=True),
-    index=list(sorted(df["year"].dropna().unique(), reverse=True)).index(ano_predefinido),
+    default=st.session_state.anos_selecionados
 )
 
 bacias_selecionadas = st.sidebar.multiselect(
     "Select the Watersheds",
     sorted(df["basin_name"].unique()),
-    default=sorted(df["basin_name"].unique()),
+    default=st.session_state.bacias_selecionadas
 )
 
 regioes_selecionadas = st.sidebar.multiselect(
     "Select the Region",
     sorted(df["county_name"].unique()),
-    default=sorted(df["county_name"].unique()),
+    default=st.session_state.regioes_selecionadas
 )
 
-# Selectbox para visualizar a geometria HUC8 e para aplicar o filtro HUC8
-visualizar_huc8 = st.sidebar.checkbox("View HUC8 Geometry", value=False)
+visualizar_huc8 = st.sidebar.checkbox("View HUC8 Geometry", value=st.session_state.visualizar_huc8)
+aplicar_filtro_huc8 = st.sidebar.checkbox("Apply HUC8 to Points", value=st.session_state.aplicar_filtro_huc8)
 
-aplicar_filtro_huc8 = st.sidebar.checkbox("Apply HUC8 to Points", value=False)
+# Atualizar session_state apenas se o valor tiver mudado
+if anos_selecionados != st.session_state.anos_selecionados:
+    st.session_state.anos_selecionados = anos_selecionados
 
+if bacias_selecionadas != st.session_state.bacias_selecionadas:
+    st.session_state.bacias_selecionadas = bacias_selecionadas
 
-# Verificar se alguma bacia ou região foi selecionada
-if len(bacias_selecionadas) == 0 or len(regioes_selecionadas) == 0:
-    st.warning(
-        "No watershed or region has been selected. Please select at least one to view the data."
-    )
+if regioes_selecionadas != st.session_state.regioes_selecionadas:
+    st.session_state.regioes_selecionadas = regioes_selecionadas
+
+if visualizar_huc8 != st.session_state.visualizar_huc8:
+    st.session_state.visualizar_huc8 = visualizar_huc8
+
+if aplicar_filtro_huc8 != st.session_state.aplicar_filtro_huc8:
+    st.session_state.aplicar_filtro_huc8 = aplicar_filtro_huc8
+
+# Filtrar os dados com base nos filtros selecionados
+if len(st.session_state.bacias_selecionadas) == 0 or len(st.session_state.regioes_selecionadas) == 0:
+    st.warning("No watershed or region has been selected. Please select at least one to view the data.")
 else:
-    # Filtrar os dados com base no ano, nas bacias e nas regiões selecionadas
     df_filtrado = gdf_points[
-        (gdf_points["year"] == ano_selecionado)
-        & (gdf_points["basin_name"].isin(bacias_selecionadas))
-        & (gdf_points["county_name"].isin(regioes_selecionadas))
+        (gdf_points["year"].isin(st.session_state.anos_selecionados))
+        & (gdf_points["basin_name"].isin(st.session_state.bacias_selecionadas))
+        & (gdf_points["county_name"].isin(st.session_state.regioes_selecionadas))
     ]
 
-    # Se a opção de aplicar o filtro por HUC8 estiver ativa, filtrar os pontos que estão dentro da geometria HUC8
-    if aplicar_filtro_huc8 is True:
+    # Aplicar filtro de HUC8 se a opção estiver marcada
+    if st.session_state.aplicar_filtro_huc8:
         df_filtrado = gpd.sjoin(df_filtrado, gdf_huc8, how="inner", predicate="within")
 
     if df_filtrado.empty:
-        st.warning(
-            f"No data available for the year {ano_selecionado}, in the selected watersheds and regions."
-        )
+        st.warning("No data available for the selected criteria.")
     else:
         # === KPIs ===
         numero_total_analitos = len(df_filtrado["analyte_primary_name"].unique())
@@ -146,16 +218,32 @@ else:
 
         # Gerar a análise estatística para cada analito e sua respectiva unidade de medida (dep_result_unit)
         resumo_estatistico = df_filtrado.groupby(
-            ["analyte_primary_name", "dep_result_unit"]
-        )["final_result_value"].describe()
+            ["analyte_primary_name"]  # colocar dentro das chaves retar caso queira apresentar unidade, "dep_result_unit"
+        )["final_result_value"].agg(
+            Min=('min'),
+            Max=('max'),
+            Mean=('mean'),
+            Median=('median'),
+            Midpoint=lambda x: (x.min() + x.max()) / 2,
+            Range=lambda x: x.max() - x.min(),
+            IQR=lambda x: x.quantile(0.75) - x.quantile(0.25),
+            SIQR=lambda x: (x.quantile(0.75) - x.quantile(0.25)) / 2,
+            Variance=('var'),
+            Std=('std'),
+            CV=lambda x: x.std() / x.mean() * 100,
+            Q1=lambda x: x.quantile(0.25),
+            Q2=lambda x: x.quantile(0.5),
+            Q3=lambda x: x.quantile(0.75),
+            Skewness=lambda x: stats.skew(x, nan_policy='omit'),
+            Kurtosis=lambda x: stats.kurtosis(x, nan_policy='omit')
+        )
 
         # Exibir a tabela com alinhamento à esquerda e responsividade
-        styled_table = resumo_estatistico.style.format("{:.2f}").set_properties(
-            **{"text-align": "left"}
-        )
+        styled_summary_table = resumo_estatistico.style.format("{:.2f}").set_table_attributes('class="styled-table"')
+
   
         # Renderizar a tabela no Streamlit
-        st.write(styled_table.to_html(), unsafe_allow_html=True)
+        st.write(styled_summary_table.to_html(), unsafe_allow_html=True)
 
         # === Filtro para analitos no histograma ===
         if "Chlorophyll a- corrected" in df_filtrado["analyte_primary_name"].unique():
@@ -207,7 +295,7 @@ else:
         # Criar o mapa usando as coordenadas do centro e zoom armazenadas
         mapa = folium.Map(location=st.session_state['centro_mapa'], zoom_start=st.session_state['zoom'])
         # Adicionar as geometrias HUC8 ao mapa usando GeoJson se selecionado para visualização
-        if visualizar_huc8 is True and not gdf_huc8.empty:
+        if st.session_state.visualizar_huc8 is True and not gdf_huc8.empty:
             folium.GeoJson(
                 gdf_huc8[['geometry', 'huc8']],
                 name="HUC8 Regions",

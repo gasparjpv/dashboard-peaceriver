@@ -1,17 +1,91 @@
+/* Configurações gerais da tabela */
 table {
     width: 100%;
     table-layout: auto;
 }
+
 th, td {
     padding: 8px 12px;
     text-align: left;
-    border: 1px solid #ddd;
+    border: 1px solid #888;  /* Bordas neutras */
 }
+
 th {
-    background-color: #f4f4f4;
+    background-color: #e0e0e0;  /* Fundo neutro para cabeçalhos */
+    color: #333;
 }
+
 @media (max-width: 768px) {
     table {
         font-size: 12px;
+    }
+}
+
+/* Estilos para tabelas estilizadas */
+.styled-table, .correlation-table, .covariance-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.styled-table th, .correlation-table th, .covariance-table th,
+.styled-table td, .correlation-table td, .covariance-table td {
+    padding: 8px;
+    border: 1px solid #888;  /* Bordas neutras */
+    color: #333;
+    text-align: center;
+}
+
+/* Fundo alternado para linhas da tabela */
+.styled-table tr:nth-child(even), .correlation-table tr:nth-child(even), .covariance-table tr:nth-child(even) {
+    background-color: #f5f5f5;  /* Fundo alternado claro */
+}
+
+.styled-table tr:nth-child(odd), .correlation-table tr:nth-child(odd), .covariance-table tr:nth-child(odd) {
+    background-color: #ffffff;  /* Fundo padrão para linhas ímpares */
+}
+
+/* Valores de alta correlação/covariância */
+.high-correlation, .high-covariance {
+    font-weight: bold;
+    color: #d2691e;  /* Cor destacada para valores altos */
+}
+
+/* Logo no canto superior direito */
+.header-logo {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 90px;
+    margin-top: 20px;
+}
+
+/* Logo no canto superior esquerdo */
+.top-logo {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 90px;
+}
+
+/* Título alinhado à esquerda */
+.title-right {
+    text-align: left;
+    font-size: 5em;
+    margin-top: -30px;
+    margin-left: 150px;
+}
+
+/* Ajustes para telas menores */
+@media (max-width: 768px) {
+    .header-logo {
+        width: 90px;
+        top: 15px;
+        right: 15px;
+    }
+
+    .title-right {
+        font-size: 2.5em;
+        margin-left: 100px;
+        margin-top: -20px;
     }
 }

@@ -4,3 +4,8 @@ pandas
 folium
 numpy
 geopandas
+scipy
+plotly
+PIL
+base64
+io
