@@ -5,6 +5,6 @@ folium
 numpy
 geopandas
 scipy
-PIL
+Pillow
 base64
 io
