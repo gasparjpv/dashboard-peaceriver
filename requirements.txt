@@ -5,10 +5,6 @@ folium
 numpy
 geopandas
 scipy
-<<<<<<< HEAD
-=======
-plotly
->>>>>>> d907c61da46cdd0db508ddfebc8a233a4463312e
 PIL
 base64
 io
