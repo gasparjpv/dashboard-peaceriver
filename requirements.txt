@@ -6,5 +6,4 @@ numpy
 geopandas
 scipy
 Pillow
-base64
 io
