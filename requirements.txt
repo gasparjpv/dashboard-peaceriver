@@ -6,4 +6,3 @@ numpy
 geopandas
 scipy
 Pillow
-io
