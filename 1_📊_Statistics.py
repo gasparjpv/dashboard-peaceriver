@@ -10,6 +10,16 @@ from PIL import Image
 import base64
 import io
 
+
+# Calcular o número de bins de forma responsiva usando a regra de Freedman-Diaconis
+def calcular_bins(data):
+    if len(data) < 2:  # Caso haja poucos dados, usar apenas 1 bin
+        return 1
+    iqr = np.percentile(data, 75) - np.percentile(data, 25)  # Intervalo interquartil
+    bin_width = 2 * iqr / len(data) ** (1 / 3)  # Largura do bin pela regra de Freedman-Diaconis
+    num_bins = max(1, int((data.max() - data.min()) / bin_width))  # Garantir ao menos 1 bin
+    return num_bins
+
 # Definir layout da página como "wide" para ser responsivo
 st.set_page_config(layout="wide")
 
@@ -109,6 +119,7 @@ st.session_state["df"] = df
 # Converter activity_start_date para datetime e extrair o ano
 df["activity_start_date"] = pd.to_datetime(df["activity_start_date"], errors="coerce")
 df["year"] = df["activity_start_date"].dt.year.astype("Int64")
+df["month"] = df["activity_start_date"].dt.month.astype("Int64")
 
 # Criar um GeoDataFrame para os pontos do df
 gdf_points = gpd.GeoDataFrame(
@@ -121,7 +132,10 @@ st.session_state["gdf_points"] = gdf_points
 
 # Inicializar os filtros no `session_state` se não existirem
 if "anos_selecionados" not in st.session_state:
-    st.session_state.anos_selecionados = [2024]  # Ano padrão
+    st.session_state.anos_selecionados = [2023]  # Ano padrão
+
+if "mes_selecionados" not in st.session_state:
+    st.session_state.mes_selecionados = sorted(df["month"].unique(), reverse=True) # Mes padrão
 
 if "bacias_selecionadas" not in st.session_state:
     st.session_state.bacias_selecionadas = sorted(df["basin_name"].unique())
@@ -140,6 +154,12 @@ anos_selecionados = st.sidebar.multiselect(
     "Select the years for visualization",
     sorted(df["year"].dropna().unique(), reverse=True),
     default=st.session_state.anos_selecionados
+)
+
+mes_selecionados = st.sidebar.multiselect(
+    "Select the month for visualization",
+    sorted(df["month"].dropna().unique(), reverse=True),
+    default=st.session_state.mes_selecionados
 )
 
 bacias_selecionadas = st.sidebar.multiselect(
@@ -161,6 +181,9 @@ aplicar_filtro_huc8 = st.sidebar.checkbox("Apply HUC8 to Points", value=st.sessi
 if anos_selecionados != st.session_state.anos_selecionados:
     st.session_state.anos_selecionados = anos_selecionados
 
+if mes_selecionados != st.session_state.mes_selecionados:
+    st.session_state.mes_selecionados = mes_selecionados
+
 if bacias_selecionadas != st.session_state.bacias_selecionadas:
     st.session_state.bacias_selecionadas = bacias_selecionadas
 
@@ -179,6 +202,7 @@ if len(st.session_state.bacias_selecionadas) == 0 or len(st.session_state.regioe
 else:
     df_filtrado = gdf_points[
         (gdf_points["year"].isin(st.session_state.anos_selecionados))
+        & (gdf_points["month"].isin(st.session_state.mes_selecionados))
         & (gdf_points["basin_name"].isin(st.session_state.bacias_selecionadas))
         & (gdf_points["county_name"].isin(st.session_state.regioes_selecionadas))
     ]
@@ -196,6 +220,10 @@ else:
         numero_total_monitoring_location_name = len(
             df_filtrado["monitoring_location_name"].unique()
         )
+        total_number_above_20 = df_filtrado[
+                    (df_filtrado["analyte_primary_name"] == "Chlorophyll a- corrected") &
+                    (df_filtrado["final_result_value"] > 20)
+                ]["monitoring_location_name"].nunique()
         numero_total_organization_name = len(df_filtrado["organization_name"].unique())
         numero_total_basin_name = len(df_filtrado["basin_name"].unique())
         numero_total_result_key = len(df_filtrado["result_key"].unique())
@@ -206,6 +234,7 @@ else:
         with col1:
             st.metric("Total Analytes", numero_total_analitos)
             st.metric("Total Regions", numero_total_county_name)
+            st.metric("Total locations with Chlorophyll - a corrected > 20", total_number_above_20)
         with col2:
             st.metric("Total Locations", numero_total_monitoring_location_name)
             st.metric("Total Organizations", numero_total_organization_name)
@@ -260,15 +289,21 @@ else:
         df_hist = df_filtrado[
             df_filtrado["analyte_primary_name"] == analyte_selecionado
         ]
-
+        filtered_values = df_hist["final_result_value"].dropna()
+        num_bins = calcular_bins(filtered_values)
+        
         if not df_hist.empty:
             st.write(
                 f"**Histogram of 'final_result_value' for the analyte {analyte_selecionado}**"
             )
-
-            hist_values, bin_edges = np.histogram(
-                df_hist["final_result_value"].dropna(), bins=20
-            )
+            st.write("Bin number according to Freedman-Diaconis rule")
+            
+            #hist_values, bin_edges = np.histogram(
+            #    df_hist["final_result_value"].dropna(), bins=40
+            #)
+            
+            hist_values, bin_edges = np.histogram(filtered_values, bins=num_bins)
+            
             bin_edges = np.round(bin_edges, decimals=2)
 
             hist_df = pd.DataFrame({"bin_edges": bin_edges[:-1], "counts": hist_values})
@@ -317,3 +352,4 @@ else:
 
         # Exibir o mapa no Streamlit
         st_folium(mapa, width=1500, height=800)
+        st.metric("Total locations with Chlorophyll - a corrected > 20", total_number_above_20)

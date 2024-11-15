@@ -89,3 +89,19 @@ th {
         margin-top: -20px;
     }
 }
+
+/* Estiliza os elementos de múltipla seleção */
+[data-baseweb="tag"] {
+    background-color: #0072C6 !important; /* Azul para o fundo do seletor */
+    color: white !important; /* Branco para o texto */
+    border-radius: 4px !important; /* Canto arredondado */
+    padding: 4px 8px !important; /* Ajuste do espaçamento interno */
+}
+
+[data-baseweb="tag"] > span {
+    color: white !important; /* Cor do texto dentro dos seletores */
+}
+
+[data-baseweb="tag"] [aria-label="clear"] {
+    color: white !important; /* Cor do ícone de fechamento (X) */
+}
