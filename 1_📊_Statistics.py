@@ -234,7 +234,7 @@ else:
         with col1:
             st.metric("Total Analytes", numero_total_analitos)
             st.metric("Total Regions", numero_total_county_name)
-            st.metric("Total locations with Chlorophyll - a corrected > 20", total_number_above_20)
+            st.metric("Total locations with Chlorophyll a- corrected > 20", total_number_above_20)
         with col2:
             st.metric("Total Locations", numero_total_monitoring_location_name)
             st.metric("Total Organizations", numero_total_organization_name)

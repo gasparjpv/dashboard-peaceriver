@@ -2,8 +2,18 @@ import pandas as pd
 import streamlit as st
 
 # Carregar os dados do session_state
-df = st.session_state["df"]
-gdf_points = st.session_state["gdf_points"]
+if "df" not in st.session_state:
+    st.error("The data was not loaded. Please return to the home page to load the data.")
+    st.stop()
+else:
+    df = st.session_state["df"]
+
+
+if "gdf_points" not in st.session_state:
+    st.error("Geographic data was not loaded. Please return to the home page.")
+    st.stop()
+else:
+    gdf_points = st.session_state["gdf_points"]
 
 # Carrega o CSS
 with open("styles.css") as f:
