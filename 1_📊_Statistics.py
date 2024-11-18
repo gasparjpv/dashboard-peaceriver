@@ -10,6 +10,18 @@ from PIL import Image
 import base64
 import io
 
+# Funções seguras para calcular Skewness e Kurtosis
+def safe_skew(x):
+    if len(x) < 2 or np.std(x) < 1e-10:  # Verifica se há dados suficientes e variabilidade
+        return np.nan
+    return stats.skew(x, nan_policy='omit')
+
+def safe_kurtosis(x):
+    if len(x) < 2 or np.std(x) < 1e-10:  # Verifica se há dados suficientes e variabilidade
+        return np.nan
+    return stats.kurtosis(x, nan_policy='omit')
+
+
 
 # Calcular o número de bins de forma responsiva usando a regra de Freedman-Diaconis
 def calcular_bins(data):
@@ -247,7 +259,7 @@ else:
 
         # Gerar a análise estatística para cada analito e sua respectiva unidade de medida (dep_result_unit)
         resumo_estatistico = df_filtrado.groupby(
-            ["analyte_primary_name"]  # colocar dentro das chaves retar caso queira apresentar unidade, "dep_result_unit"
+            ["analyte_primary_name"]
         )["final_result_value"].agg(
             Min=('min'),
             Max=('max'),
@@ -259,12 +271,12 @@ else:
             SIQR=lambda x: (x.quantile(0.75) - x.quantile(0.25)) / 2,
             Variance=('var'),
             Std=('std'),
-            CV=lambda x: x.std() / x.mean() * 100,
+            CV=lambda x: x.std() / x.mean() * 100 if x.mean() != 0 else np.nan,
             Q1=lambda x: x.quantile(0.25),
             Q2=lambda x: x.quantile(0.5),
             Q3=lambda x: x.quantile(0.75),
-            Skewness=lambda x: stats.skew(x, nan_policy='omit'),
-            Kurtosis=lambda x: stats.kurtosis(x, nan_policy='omit')
+            Skewness=lambda x: safe_skew(x),
+            Kurtosis=lambda x: safe_kurtosis(x)
         )
 
         # Exibir a tabela com alinhamento à esquerda e responsividade
