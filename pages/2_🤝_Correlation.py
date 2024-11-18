@@ -1,11 +1,6 @@
 import pandas as pd
 import streamlit as st
 
-def highlight_high_correlation(val):
-    """Destaca correlações altas em negrito"""
-    color = "background-color: yellow" if abs(val) > 0.8 else ""
-    return color
-    
 # Carregar os dados do session_state
 if "df" not in st.session_state:
     st.error("The data was not loaded. Please return to the home page to load the data.")
@@ -78,8 +73,8 @@ else:
     # Aplicar estilo e formatação
     correlation_matrix_formatted = (
         correlation_matrix.style.format("{:.2f}")  # Formatar para duas casas decimais
-        .applymap(highlight_high_correlation)  # Aplicar a formatação célula por célula
-)
+        .map(highlight_high_correlation)  # Aplicar a formatação célula por célula
+        )
     # Exibe o DataFrame estilizado no Streamlit com altura personalizada
     st.write("### Correlation Matrix between Analytes")
     html_table = generate_html_table(correlation_matrix)
