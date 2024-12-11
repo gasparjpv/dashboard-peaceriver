@@ -32,59 +32,35 @@ def calcular_bins(data):
     num_bins = max(1, int((data.max() - data.min()) / bin_width))  # Garantir ao menos 1 bin
     return num_bins
 
-# Definir layout da página como "wide" para ser responsivo
+# Configuração da página
 st.set_page_config(layout="wide")
 
-# Carregar o CSS imagem unicamp
-with open("styles.css") as f:
-    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+# Função para carregar e converter imagens para Base64
+def convert_image_to_base64(image_path):
+    image = Image.open(image_path)
+    buffered = io.BytesIO()
+    image.save(buffered, format="PNG")
+    return base64.b64encode(buffered.getvalue()).decode()
 
-# Carregar a imagem
-logo = Image.open("imagens/unicamp.jpg")
+# Converter imagens para Base64
+logo_base64 = convert_image_to_base64("imagens/unicamp.jpg")
+top_image_base64 = convert_image_to_base64("imagens/ft.jpg")
 
-# Converter a imagem para Base64
-buffered = io.BytesIO()
-logo.save(buffered, format="PNG")
-logo_base64 = base64.b64encode(buffered.getvalue()).decode()
-
-# Renderizar a imagem com a classe CSS personalizada
+# Renderizar o cabeçalho
 st.markdown(
-    f'<img src="data:image/png;base64,{logo_base64}" class="header-logo">',
-    unsafe_allow_html=True
+    f"""
+    <div class="header-container">
+        <img src="data:image/png;base64,{top_image_base64}" class="top-logo">
+        <h1 class="title-right">Peace River - Florida</h1>
+        <img src="data:image/png;base64,{logo_base64}" class="header-logo">
+    </div>
+    """,
+    unsafe_allow_html=True,
 )
 
 # Carregar o CSS
 with open("styles.css") as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-
-
-# Carregar a imagem para o topo da página
-top_image = Image.open("imagens/ft.jpg")  # Substitua pelo caminho correto
-
-# Converter a imagem para Base64
-buffered = io.BytesIO()
-top_image.save(buffered, format="PNG")
-top_image_base64 = base64.b64encode(buffered.getvalue()).decode()
-
-# Renderizar a imagem no topo da página com a nova classe CSS
-st.markdown(
-    f'<img src="data:image/png;base64,{top_image_base64}" class="top-logo">',
-    unsafe_allow_html=True
-)
-
-# Título do Dashboard, alinhado à direita
-st.markdown("<h1 class='title-right'>Peace River - Florida</h1>", unsafe_allow_html=True)
-
-
-
-# Função para carregar o arquivo CSS
-def load_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-# Carregar o arquivo styles.css
-load_css("styles.css")
 
 # Função para carregar o arquivo GeoPackage de HUC8
 @st.cache_data

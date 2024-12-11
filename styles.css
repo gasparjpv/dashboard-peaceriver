@@ -50,45 +50,56 @@ th {
     color: #d2691e;  /* Cor destacada para valores altos */
 }
 
-/* Logo no canto superior direito */
-.header-logo {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    width: 90px;
-    margin-top: 20px;
+/* Container para alinhar os elementos no cabeçalho */
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px;
+    position: relative;
+    width: 100%;
 }
 
 /* Logo no canto superior esquerdo */
 .top-logo {
-    position: absolute;
-    top: 10px;
-    left: 10px;
     width: 90px;
+    margin-right: 20px;
 }
 
-/* Título alinhado à esquerda */
+/* Título grande alinhado à esquerda */
 .title-right {
+    flex: 1;
     text-align: left;
-    font-size: 5em;
-    margin-top: -30px;
-    margin-left: 150px;
+    font-size: 4em; /* Ajuste para o tamanho desejado */
+    margin: 0 20px;
+    line-height: 1.2;
+}
+
+/* Logo no canto superior direito */
+.header-logo {
+    width: 90px;
+    margin-left: 20px;
 }
 
 /* Ajustes para telas menores */
 @media (max-width: 768px) {
-    .header-logo {
-        width: 90px;
-        top: 15px;
-        right: 15px;
+    .header-container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .top-logo, .header-logo {
+        width: 70px;
+        margin: 10px 0;
     }
 
     .title-right {
         font-size: 2.5em;
-        margin-left: 100px;
-        margin-top: -20px;
+        text-align: center;
+        margin-left: 0;
     }
 }
+
 
 /* Estiliza os elementos de múltipla seleção */
 [data-baseweb="tag"] {
