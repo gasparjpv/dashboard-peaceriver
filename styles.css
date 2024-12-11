@@ -70,7 +70,7 @@ th {
 .title-right {
     flex: 1;
     text-align: left;
-    font-size: 4em; /* Ajuste para o tamanho desejado */
+    font-size: 5em; /* Ajuste para o tamanho desejado */
     margin: 0 20px;
     line-height: 1.2;
 }
@@ -81,7 +81,7 @@ th {
     margin-left: 20px;
 }
 
-/* Ajustes para telas menores */
+/* Ajustes para telas menores 
 @media (max-width: 768px) {
     .header-container {
         flex-direction: column;
@@ -99,7 +99,7 @@ th {
         margin-left: 0;
     }
 }
-
+*/
 
 /* Estiliza os elementos de múltipla seleção */
 [data-baseweb="tag"] {
