@@ -70,7 +70,8 @@ th {
 .title-right {
     flex: 1;
     text-align: left;
-    font-size: 5em; /* Ajuste para o tamanho desejado */
+    font-size: 4em;
+    font-weight: bold; /* Ajuste o peso da fonte, se necessário */
     margin: 0 20px;
     line-height: 1.2;
 }

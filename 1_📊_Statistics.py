@@ -51,7 +51,7 @@ st.markdown(
     f"""
     <div class="header-container">
         <img src="data:image/png;base64,{top_image_base64}" class="top-logo">
-        <h1 class="title-right">Peace River - Florida</h1>
+        <div class="title-right">Peace River - Florida</div>
         <img src="data:image/png;base64,{logo_base64}" class="header-logo">
     </div>
     """,
